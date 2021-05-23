@@ -20,3 +20,7 @@ make tests
 ### Postman requests collection
 
 You can import all available API calls to Postman using `postman_collection.json` file
+
+### API
+
+* [Item](readme/item_api.md)

@@ -5,30 +5,13 @@ namespace App\Tests\Unit;
 use App\Entity\Item;
 use App\Entity\User;
 use App\Service\ItemService;
+use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class ItemServiceTest extends TestCase
 {
-    /**
-     * @var EntityManagerInterface|MockObject
-     */
-    private $entityManager;
-
-    /**
-     * @var ItemService
-     */
-    private $itemService;
-
-    public function setUp(): void
-    {
-        /** @var EntityManagerInterface */
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        
-        $this->itemService = new ItemService($this->entityManager);
-    }
-
     public function testCreate(): void
     {
         /** @var User */
@@ -37,9 +20,23 @@ class ItemServiceTest extends TestCase
 
         $expectedObject = new Item();
         $expectedObject->setUser($user);
+        $expectedObject->setData($data);
 
-        $this->entityManager->expects($this->once())->method('persist')->with($expectedObject);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em
+            ->expects($this->once())
+            ->method('persist')
+            ->with($expectedObject);
 
-        $this->itemService->create($user, $data);
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry
+            ->expects($this->once())
+            ->method('getManagerForClass')
+            ->with(Item::class)
+            ->willReturn($em);
+
+        $itemService = new ItemService($registry, $this->createMock(AuthorizationCheckerInterface::class));
+
+        $itemService->create($user, $data);
     }
 }
