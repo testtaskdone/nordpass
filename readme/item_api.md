@@ -3,7 +3,7 @@
 ## List
 ### Request
 GET /item
-###Response example
+### Response example
 ```json
 [
     {
